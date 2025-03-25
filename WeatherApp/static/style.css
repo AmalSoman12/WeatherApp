@@ -1,0 +1,138 @@
+:root {
+    --bg-color: #f5f5f5;
+    --text-color: #333;
+    --card-bg: #fff;
+    --primary: #4285f4;
+    --secondary: #34a853;
+}
+
+.dark-mode {
+    --bg-color: #121212;
+    --text-color: #f5f5f5;
+    --card-bg: #1e1e1e;
+    --primary: #8ab4f8;
+    --secondary: #81c995;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+h1 {
+    color: var(--primary);
+    margin: 0;
+}
+
+.theme-toggle {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.theme-toggle:hover {
+    background-color: var(--secondary);
+}
+
+.card {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: background-color 0.3s;
+}
+
+.prediction-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+input, select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+button {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    grid-column: 1 / -1;
+}
+
+button:hover {
+    background-color: var(--secondary);
+}
+
+.result {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.rain { background-color: #d4e6f1; color: #0d47a1; }
+.sun { background-color: #fff9c4; color: #f57f17; }
+.drizzle { background-color: #e3f2fd; color: #1565c0; }
+.snow { background-color: #e8f5e9; color: #2e7d32; }
+.fog { background-color: #f5f5f5; color: #424242; }
+
+.dark-mode .rain { background-color: #0d47a1; color: #bbdefb; }
+.dark-mode .sun { background-color: #f57f17; color: #fff9c4; }
+.dark-mode .drizzle { background-color: #1565c0; color: #e3f2fd; }
+.dark-mode .snow { background-color: #2e7d32; color: #e8f5e9; }
+.dark-mode .fog { background-color: #424242; color: #f5f5f5; }
+
+.chart-container {
+    height: 400px;
+    margin-top: 30px;
+}
+
+.weather-icon {
+    font-size: 24px;
+    margin-right: 10px;
+}
