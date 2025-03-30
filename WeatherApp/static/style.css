@@ -136,3 +136,64 @@ button:hover {
     font-size: 24px;
     margin-right: 10px;
 }
+
+/* Add this to style.css */
+#getTempBtn {
+    background-color: var(--secondary);
+    margin-bottom: 15px;
+}
+
+#getTempBtn:hover {
+    background-color: var(--primary);
+}
+
+input[readonly] {
+    background-color: #f0f0f0;
+}
+
+.dark-mode input[readonly] {
+    background-color: #2a2a2a;
+}
+/* Add these new styles to your existing CSS */
+
+.temp-input-group {
+    display: flex;
+    gap: 10px;
+}
+
+.temp-input-group input {
+    flex: 1;
+}
+
+.temp-btn {
+    background-color: var(--secondary);
+    padding: 8px 12px;
+    white-space: nowrap;
+}
+
+.temp-btn:hover {
+    background-color: var(--primary);
+}
+
+.temp-source {
+    margin-top: 5px;
+    font-size: 0.8em;
+    font-style: italic;
+}
+
+.temp-source.default {
+    color: #666;
+}
+
+.temp-source.sensor {
+    color: var(--secondary);
+    font-weight: bold;
+}
+
+.dark-mode .temp-source.default {
+    color: #aaa;
+}
+
+.dark-mode .temp-source.sensor {
+    color: #81c995;
+}

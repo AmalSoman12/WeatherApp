@@ -10,7 +10,7 @@
 <body>
     <div class="container">
         <header>
-            <h1> Weather Predictor</h1>
+            <h1>Weather Predictor</h1>
             <button id="themeToggle" class="theme-toggle">Dark Mode</button>
         </header>
         
@@ -31,7 +31,11 @@
                 
                 <div class="form-group">
                     <label for="temp_max">Max Temperature (°F)</label>
-                    <input type="number" id="temp_max" required>
+                    <div class="temp-input-group">
+                        <input type="number" id="temp_max" required>
+                        <button id="getTempBtn" class="temp-btn">Get Current Temp</button>
+                    </div>
+                    <p class="temp-source" id="tempSource">Default value: 80.1°F (26.7°C)</p>
                 </div>
                 
                 <div class="form-group">
@@ -44,7 +48,9 @@
                     <input type="number" id="wind" step="0.1" min="0" required>
                 </div>
                 
-                <button id="predictBtn">Predict Weather</button>
+                <div class="button-group">
+                    <button id="predictBtn">Predict Weather</button>
+                </div>
             </div>
             
             <div id="predictionResult" class="result" style="display: none;">
@@ -62,6 +68,10 @@
     </div>
 
     <script>
+        // Constants for default temperature
+        const DEFAULT_TEMP_C = 26.7;
+        const DEFAULT_TEMP_F = (DEFAULT_TEMP_C * 9/5) + 32;
+
         // Dark mode toggle
         const themeToggle = document.getElementById('themeToggle');
         themeToggle.addEventListener('click', () => {
@@ -69,12 +79,57 @@
             themeToggle.textContent = document.body.classList.contains('dark-mode') 
                 ? 'Light Mode' 
                 : 'Dark Mode';
-            updateChartColors();
+            updateChartColors(); // Update chart colors for better visibility
         });
         
+        // Fetch current temperature from the sensor
+        document.getElementById('getTempBtn').addEventListener('click', async () => {
+            const tempInput = document.getElementById('temp_max');
+            const tempBtn = document.getElementById('getTempBtn');
+            const tempSource = document.getElementById('tempSource');
+            
+            tempBtn.disabled = true;
+            tempBtn.textContent = 'Reading...';
+            
+            try {
+                const response = await fetch('/get_temp');
+                if (!response.ok) throw new Error('Network error');
+                
+                const data = await response.json();
+                
+                if (data.temp !== null && !isNaN(data.temp)) {
+                    tempInput.value = data.temp.toFixed(1);
+                    tempSource.textContent = `Sensor value: ${data.temp.toFixed(1)}°F`;
+                    tempSource.className = 'temp-source sensor';
+                    tempBtn.textContent = 'Success!';
+                } else {
+                    useDefaultTemperature();// If sensor fails, use default
+                    tempBtn.textContent = 'Using Default';
+                }
+            } catch (error) {
+                useDefaultTemperature(); 
+                tempBtn.textContent = 'Using Default';
+                console.error('Temperature error:', error);
+            } finally {
+                setTimeout(() => {
+                    tempBtn.textContent = 'Get Current Temp';
+                    tempBtn.disabled = false;
+                }, 2000);
+            }
+        });
+
+        // Function to use the default temperature if sensor is unavailable
+
+        function useDefaultTemperature() {
+            const tempInput = document.getElementById('temp_max');
+            const tempSource = document.getElementById('tempSource');
+            tempInput.value = DEFAULT_TEMP_F.toFixed(1);
+            tempSource.textContent = `Default value: ${DEFAULT_TEMP_F.toFixed(1)}°F (${DEFAULT_TEMP_C}°C)`;
+            tempSource.className = 'temp-source default';
+        }
+
         // Weather prediction
         document.getElementById('predictBtn').addEventListener('click', async () => {
-            // Get input values
             const date = document.getElementById('date').value;
             const precipitation = document.getElementById('precipitation').value;
             const tempMax = document.getElementById('temp_max').value;
@@ -107,23 +162,26 @@
                     throw new Error(data.message);
                 }
                 
-                // Display result
-                const resultDiv = document.getElementById('predictionResult');
-                const predictionSpan = document.getElementById('weatherPrediction');
-                const detailsP = document.getElementById('weatherDetails');
-                
-                resultDiv.style.display = 'block';
-                resultDiv.className = 'result ' + data.prediction;
-                predictionSpan.textContent = data.prediction.charAt(0).toUpperCase() + data.prediction.slice(1);
-                detailsP.textContent = data.details;
-                
+                displayPredictionResult(data);
             } catch (error) {
                 alert('Prediction failed: ' + error.message);
                 console.error('Prediction error:', error);
             }
         });
-        
-        // Initialize chart
+
+    // Display prediction results
+        function displayPredictionResult(data) {
+            const resultDiv = document.getElementById('predictionResult');
+            const predictionSpan = document.getElementById('weatherPrediction');
+            const detailsP = document.getElementById('weatherDetails');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result ' + data.prediction;
+            predictionSpan.textContent = data.prediction.charAt(0).toUpperCase() + data.prediction.slice(1);
+            detailsP.textContent = data.details;
+        }
+
+        // Initialize Chart.js for historical weather data
         const ctx = document.getElementById('weatherChart').getContext('2d');
         const weatherChart = new Chart(ctx, {
             type: 'bar',
@@ -157,17 +215,21 @@
                     }
                 ]
             },
-            options: {
+            options: chartOptions()
+        });
+        
+        function chartOptions() {
+            const isDark = document.body.classList.contains('dark-mode');
+            const textColor = isDark ? '#f5f5f5' : '#666';
+            const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+            
+            return {
                 responsive: true,
                 scales: {
                     x: {
                         stacked: true,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.1)'
-                        },
-                        ticks: {
-                            color: '#666'
-                        }
+                        grid: { color: gridColor },
+                        ticks: { color: textColor }
                     },
                     y: {
                         stacked: true,
@@ -175,48 +237,35 @@
                         title: {
                             display: true,
                             text: 'Number of Days',
-                            color: '#666'
+                            color: textColor
                         },
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.1)'
-                        },
-                        ticks: {
-                            color: '#666'
-                        }
+                        grid: { color: gridColor },
+                        ticks: { color: textColor }
                     }
                 },
                 plugins: {
                     title: {
                         display: true,
                         text: 'Average Weather Days per Month in Seattle',
-                        color: '#333'
+                        color: textColor
                     },
                     legend: {
-                        labels: {
-                            color: '#333'
-                        }
+                        labels: { color: textColor }
                     }
                 }
-            }
-        });
-        
-        function updateChartColors() {
-            const isDark = document.body.classList.contains('dark-mode');
-            const textColor = isDark ? '#f5f5f5' : '#666';
-            const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
-            
-            weatherChart.options.scales.x.grid.color = gridColor;
-            weatherChart.options.scales.y.grid.color = gridColor;
-            weatherChart.options.scales.x.ticks.color = textColor;
-            weatherChart.options.scales.y.ticks.color = textColor;
-            weatherChart.options.plugins.title.color = textColor;
-            weatherChart.options.plugins.legend.labels.color = textColor;
-            
-            weatherChart.update();
+            };
         }
         
-        // Set default date to today
-        document.getElementById('date').valueAsDate = new Date();
+        function updateChartColors() {
+            weatherChart.options = chartOptions();
+            weatherChart.update();
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('date').valueAsDate = new Date();
+            useDefaultTemperature();
+        });
     </script>
 </body>
-</html>
+</html> 
